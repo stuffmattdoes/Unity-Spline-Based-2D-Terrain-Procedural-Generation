@@ -32,15 +32,16 @@ public class SplineTerrainGeneratorInspector : Editor {
 		// Button to generate new terrain
 		if (GUILayout.Button("Generate New Terrain")) {
 			Undo.RecordObject(terrain, "Generate New Terrain");
-			terrain.GenerateTerrain();
 			EditorUtility.SetDirty(terrain);
+			terrain.GenerateTerrain();
 		}
 
 		// Button to generate new terrain
 		if (GUILayout.Button("Add Curve")) {
 			Undo.RecordObject(terrain, "Add Curve");
-			terrain.AddCurve(4);
 			EditorUtility.SetDirty(terrain);
+			terrain.AddCurve(4);
+			terrain.BuildMesh ();
 		}
 
 	}
@@ -82,7 +83,6 @@ public class SplineTerrainGeneratorInspector : Editor {
 			Undo.RecordObject (terrain, "Move Point");
 			EditorUtility.SetDirty (terrain);
 			terrain.SetControlPoint (selectedIndex, point);
-//			terrain.BuildMesh ();
 		}
 
 		// Draw the mode per point
@@ -94,8 +94,7 @@ public class SplineTerrainGeneratorInspector : Editor {
 		if (EditorGUI.EndChangeCheck()) {
 			Undo.RecordObject(terrain, "Change Point Mode");
 			EditorUtility.SetDirty(terrain);
-			terrain.SetControlPointMode(selectedIndex, mode);
-//			terrain.BuildMesh ();
+			terrain.SetControlPointMode (selectedIndex, mode);
 		}
 	}
 

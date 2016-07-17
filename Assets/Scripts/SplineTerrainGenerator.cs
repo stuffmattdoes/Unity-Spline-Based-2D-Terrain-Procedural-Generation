@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 
 // TODO
-// - Remove the dang quad from the backsize
-// - Confine curve resolution to each block instead of the entire curve
+// - (DONE) Remove the dang quad from the backsize
+// - (DONE) Confine curve resolution to each block instead of the entire curve
 // - Make each block a specific length so that texture tiles correctly
 // - Allow for start/end points that aren't flat & extend down/near to mesh bottom
 
@@ -118,6 +118,7 @@ public class SplineTerrainGenerator : MonoBehaviour {
 	}
 
 	public void AddCurve(int curvePoints) {
+//		terrainBlocks += 1;
 
 		for (int j = 0; j < curvePoints - 1; j++) {
 			points.Add(RandomPoint(points[points.Count - 1]));
@@ -157,7 +158,8 @@ public class SplineTerrainGenerator : MonoBehaviour {
 	}
 
 
-//	 Obtain a point in our list of points along our spline
+	/* Obtain a point in our list of points along our spline
+	 */
 	public Vector3 GetPoint (float t) {
 		int i;
 
@@ -317,25 +319,23 @@ public class SplineTerrainGenerator : MonoBehaviour {
 		uvs.Clear ();
 
 		// Get new mesh properties
-		mf = GetComponent<MeshFilter> ();
+		if (mf == null) {
+			mf = GetComponent<MeshFilter> ();
+		}
+
 		mesh = mf.mesh;
 
 	}
 
 	// Obtain a list of vertices from our spline
 	public void GetSplineVertices() {
+		int terrainLength = curveResolution * terrainBlocks;
 
-		// Loop through each terrain block
-		for (int i = 0; i < terrainBlocks; i++) {
-
-			// Loop through each point of resolution in this block
-			for (int j = 0; j < curveResolution; j++) {
-				float t = (float)j / (float)(curveResolution - 1);
-				Debug.Log (t);
-				AddTerrainVertex (GetPoint(t));
-				AddUVs (GetPoint(t));
-			}
-
+		// Loop through each point of resolution in this block
+		for (int j = 0; j < terrainLength; j++) {
+			float t = (float)j / ((float)terrainLength - 1);
+			AddTerrainVertex (GetPoint(t));
+			AddUVs (GetPoint(t));
 		}
 
 	}
@@ -343,7 +343,7 @@ public class SplineTerrainGenerator : MonoBehaviour {
 	void AddTerrainVertex(Vector3 point) {
 
 		// Create corresponding point along the bottom
-		vertices.Add(new Vector3(point.x, point.y - meshHeight, 0));
+		vertices.Add(new Vector3(point.x, point.y - meshHeight, transform.position.z));
 
 		// Then add our top points
 		vertices.Add (point);
