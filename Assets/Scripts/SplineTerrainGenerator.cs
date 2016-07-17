@@ -1,21 +1,22 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
+// TODO
+// - Remove the dang quad from the backsize
+// - Confine curve resolution to each block instead of the entire curve
+// - Make each block a specific length so that texture tiles correctly
+// - Allow for start/end points that aren't flat & extend down/near to mesh bottom
+
+
 public class SplineTerrainGenerator : MonoBehaviour {
 
+
 	[HeaderAttribute("Spline")]
-//	public int curveSteps = 10;
 	public int terrainBlocks = 4;
-//	public bool startBlock;
-//	public bool endBlock;
 	[Range(1, 10)] public int minDeltaX = 4;
 	[Range(1, 10)] public int maxDeltaX = 6;
 	[Range(1, 10)] public int minDeltaY = 2;
 	[Range(1, 10)] public int maxDeltaY = 8;
-
-	[SerializeField]
-	[HideInInspector]
-	private List<Vector3> points;
 
 	public enum BezierControlPointMode {
 		Free,
@@ -24,12 +25,25 @@ public class SplineTerrainGenerator : MonoBehaviour {
 	};
 
 	public BezierControlPointMode defaultBezierMode = BezierControlPointMode.Aligned;
+	public float terrainSecant;
+
+	[HeaderAttribute("Terrain")]
+	public int curveResolution = 20;
+	public int meshHeight = 25;
+
+	[SerializeField]
+	[HideInInspector]
+	private List<Vector3> points;
 
 	[SerializeField]
 	[HideInInspector]
 	private List<BezierControlPointMode> modes;
+	private Mesh mesh;
+	private List<Vector3> vertices = new List<Vector3>();
+	private List<int> triangles = new List<int>();
+	private List<Vector2> uvs = new List<Vector2> ();
+	private MeshFilter mf;
 
-	public float terrainSecant;
 
 	public int ControlPointCount {
 		get {
@@ -59,29 +73,16 @@ public class SplineTerrainGenerator : MonoBehaviour {
 		modes.Clear ();
 
 
-		/* Step 1
-		 * Add our initial terrain block
+		/* Step 1 - Add our initial terrain block
 		 */
 
-		// If this isn't a starting block, our first point needs to be flat
-//		if (!startBlock) {
-			points.Add (new Vector3 (0f, 0f, 0f));
-			points.Add (new Vector3 (
-				Random.Range (minDeltaY, maxDeltaX),
-				0f,
-				0f
-			));
-//		} else {
-//			float newPoint = Random.Range (4, 8);
-//
-//			points.Add (new Vector3 (0f, 0f, 0f));
-//			points.Add (new Vector3 (
-//				newPoint,
-//				newPoint,
-//				0f
-//			));
-//		}
-
+		points.Add (new Vector3 (0f, 0f, 0f));
+		points.Add (new Vector3 (
+			Random.Range ((float)minDeltaX, (float)maxDeltaX),
+			0f,
+			0f
+		));
+			
 		points.Add(RandomPoint(points[points.Count - 1]));
 		points.Add(RandomPoint(points[points.Count - 1]));
 
@@ -90,8 +91,7 @@ public class SplineTerrainGenerator : MonoBehaviour {
 		modes.Add (defaultBezierMode);
 
 
-		/* Step 2
-		 * Add more terrain blocks
+		/* Step 2 - Add more terrain blocks
 		 * Take note - just how we manually created our first terrain block to ensure it
 		 * would flatten out (dx/dy = 0), we want to even out our end block.
 		 * So we create it manually
@@ -99,19 +99,21 @@ public class SplineTerrainGenerator : MonoBehaviour {
 
 		for (int i = 0; i < terrainBlocks - 1; i++) {
 			if (i < terrainBlocks - 2) {
-//				Debug.Log("Create " + (terrainBlocks - 1 - i) + " more");
 				AddCurve (4);
 			} else {
-//				Debug.Log("Last block");
 				AddCurve (3);
 				points.Add (new Vector3 (
-					points[points.Count - 1].x + Random.Range (minDeltaX, maxDeltaX),
+					points[points.Count - 1].x + Random.Range ((float)minDeltaX, (float)maxDeltaX),
 					points[points.Count - 1].y,
 					0f
 				));
 			}
 
 		}
+
+		/* Step 3 - Build the mesh
+		 */
+		BuildMesh ();
 
 	}
 
@@ -135,11 +137,11 @@ public class SplineTerrainGenerator : MonoBehaviour {
 	}
 
 	// Generate a random 
-	Vector3 RandomPoint(Vector3 point) {
+	private Vector3 RandomPoint(Vector3 point) {
 
 		Vector3 newPoint = new Vector3 (
-			Random.Range (point.x + minDeltaX, point.x + maxDeltaX),
-			Random.Range (point.y - minDeltaY, point.y + maxDeltaY),
+			point.x + 10,
+			Random.Range (point.y - (float)minDeltaY, point.y + (float)maxDeltaY),
 			0
 		);
 
@@ -155,7 +157,7 @@ public class SplineTerrainGenerator : MonoBehaviour {
 	}
 
 
-	// Obtain a point in our list of points along our spline
+//	 Obtain a point in our list of points along our spline
 	public Vector3 GetPoint (float t) {
 		int i;
 
@@ -191,6 +193,7 @@ public class SplineTerrainGenerator : MonoBehaviour {
 
 		if (index % 3 == 0) {
 			Vector3 delta = point - points[index];
+
 			if (index > 0) {
 				points[index - 1] += delta;
 			}
@@ -278,13 +281,95 @@ public class SplineTerrainGenerator : MonoBehaviour {
 	}
 
 
-	public static Vector3 GetBezierFirstDerivative (Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
-		t = Mathf.Clamp01(t);
-		float oneMinusT = 1f - t;
-		return
-			3f * oneMinusT * oneMinusT * (p1 - p0) +
-			6f * oneMinusT * t * (p2 - p1) +
-			3f * t * t * (p3 - p2);
+	// Useful for drawing tangents on the curve to show directionality/velocity
+//	public static Vector3 GetBezierFirstDerivative (Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
+//		t = Mathf.Clamp01(t);
+//		float oneMinusT = 1f - t;
+//		return
+//			3f * oneMinusT * oneMinusT * (p1 - p0) +
+//			6f * oneMinusT * t * (p2 - p1) +
+//			3f * t * t * (p3 - p2);
+//	}
+		
+	public void BuildMesh() {
+//		Debug.Log ("Build mesh");
+
+		// Get mesh properties
+		GetMeshProps();
+
+		// Build the mesh
+		GetSplineVertices ();
+
+		// Build the mesh
+		SetMesh();
+	}
+
+	void GetMeshProps() {
+
+		// Reset our mesh properties
+		if (mesh != null) {
+			mesh.Clear ();
+		}
+
+//		meshPoints.Clear ();
+		vertices.Clear ();
+		triangles.Clear ();
+		uvs.Clear ();
+
+		// Get new mesh properties
+		mf = GetComponent<MeshFilter> ();
+		mesh = mf.mesh;
+
+	}
+
+	// Obtain a list of vertices from our spline
+	public void GetSplineVertices() {
+
+		// Loop through each terrain block
+		for (int i = 0; i < terrainBlocks; i++) {
+
+			// Loop through each point of resolution in this block
+			for (int j = 0; j < curveResolution; j++) {
+				float t = (float)j / (float)(curveResolution - 1);
+				Debug.Log (t);
+				AddTerrainVertex (GetPoint(t));
+				AddUVs (GetPoint(t));
+			}
+
+		}
+
+	}
+
+	void AddTerrainVertex(Vector3 point) {
+
+		// Create corresponding point along the bottom
+		vertices.Add(new Vector3(point.x, point.y - meshHeight, 0));
+
+		// Then add our top points
+		vertices.Add (point);
+
+		// Once we've created a quad, create its triangles
+		if (vertices.Count >= 4) {
+			int start = vertices.Count - 4;
+			triangles.Add (start + 0);
+			triangles.Add (start + 1);
+			triangles.Add (start + 2);
+			triangles.Add (start + 1);
+			triangles.Add (start + 3);
+			triangles.Add (start + 2);
+		}
+	}
+
+	void AddUVs(Vector3 point) {
+		uvs.Add( new Vector2(point.x, 0));
+		uvs.Add( new Vector2(point.x, 1));
+	}
+
+	void SetMesh() {
+		// Assign the vertices and triangles to the mesh
+		mesh.vertices = vertices.ToArray();
+		mesh.triangles = triangles.ToArray();
+		mesh.uv = uvs.ToArray ();
 	}
 
 }

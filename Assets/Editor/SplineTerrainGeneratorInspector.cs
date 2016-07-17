@@ -82,19 +82,20 @@ public class SplineTerrainGeneratorInspector : Editor {
 			Undo.RecordObject (terrain, "Move Point");
 			EditorUtility.SetDirty (terrain);
 			terrain.SetControlPoint (selectedIndex, point);
+//			terrain.BuildMesh ();
 		}
 
 		// Draw the mode per point
 		EditorGUI.BeginChangeCheck();
 
-		// This probably should be its own class.
 		SplineTerrainGenerator.BezierControlPointMode mode = (SplineTerrainGenerator.BezierControlPointMode)
 			EditorGUILayout.EnumPopup("Mode", terrain.GetControlPointMode(selectedIndex));
 
 		if (EditorGUI.EndChangeCheck()) {
 			Undo.RecordObject(terrain, "Change Point Mode");
-			terrain.SetControlPointMode(selectedIndex, mode);
 			EditorUtility.SetDirty(terrain);
+			terrain.SetControlPointMode(selectedIndex, mode);
+//			terrain.BuildMesh ();
 		}
 	}
 
@@ -122,6 +123,7 @@ public class SplineTerrainGeneratorInspector : Editor {
 				Undo.RecordObject (terrain, "Move Point");
 				EditorUtility.SetDirty (terrain);
 				terrain.SetControlPoint(index, handleTransform.InverseTransformPoint (point));
+				terrain.BuildMesh ();
 			}
 		}
 		return point;
