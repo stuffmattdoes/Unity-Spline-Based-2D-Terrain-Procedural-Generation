@@ -4,12 +4,13 @@ using System.Collections.Generic;
 // TODO
 // - (DONE) Remove the dang quad from the backsize
 // - (DONE) Confine curve resolution to each block instead of the entire curve
+// - (DONE) Mesh creation is off when spline position !== (0, 0, 0)
+// - Add undo functionality to mesh building
 // - Make each block a specific length so that texture tiles correctly
 // - Allow for start/end points that aren't flat & extend down/near to mesh bottom
 
 
 public class SplineTerrainGenerator : MonoBehaviour {
-
 
 	[HeaderAttribute("Spline")]
 	public int terrainBlocks = 4;
@@ -103,7 +104,7 @@ public class SplineTerrainGenerator : MonoBehaviour {
 			} else {
 				AddCurve (3);
 				points.Add (new Vector3 (
-					points[points.Count - 1].x + Random.Range ((float)minDeltaX, (float)maxDeltaX),
+					points[points.Count - 1].x + 10,
 					points[points.Count - 1].y,
 					0f
 				));
@@ -141,7 +142,7 @@ public class SplineTerrainGenerator : MonoBehaviour {
 	private Vector3 RandomPoint(Vector3 point) {
 
 		Vector3 newPoint = new Vector3 (
-			point.x + 10,
+			Random.Range (point.x + (float)minDeltaX, point.x + (float)maxDeltaX),
 			Random.Range (point.y - (float)minDeltaY, point.y + (float)maxDeltaY),
 			0
 		);
@@ -174,7 +175,8 @@ public class SplineTerrainGenerator : MonoBehaviour {
 			i *= 3;
 		}
 
-		return transform.TransformPoint(GetBezierPoint(points[i], points[i + 1], points[i + 2], points[i + 3], t));
+//		return transform.TransformPoint(GetBezierPoint(points[i], points[i + 1], points[i + 2], points[i + 3], t));
+		return GetBezierPoint(points[i], points[i + 1], points[i + 2], points[i + 3], t);
 	}
 
 
@@ -336,6 +338,7 @@ public class SplineTerrainGenerator : MonoBehaviour {
 			float t = (float)j / ((float)terrainLength - 1);
 			AddTerrainVertex (GetPoint(t));
 			AddUVs (GetPoint(t));
+//			Debug.Log (GetPoint (t));
 		}
 
 	}
@@ -343,7 +346,10 @@ public class SplineTerrainGenerator : MonoBehaviour {
 	void AddTerrainVertex(Vector3 point) {
 
 		// Create corresponding point along the bottom
+//		Vector3 newPoint = transform.TransformPoint(point);
 		vertices.Add(new Vector3(point.x, point.y - meshHeight, transform.position.z));
+//		vertices.Add(new Vector3(newPoint.x, newPoint.y - meshHeight, transform.position.z));
+//		Debug.Log (point + ": " + newPoint);
 
 		// Then add our top points
 		vertices.Add (point);
