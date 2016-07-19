@@ -31,7 +31,7 @@ public class SplineTerrainGeneratorInspector : Editor {
 		// Button to generate new terrain
 		if (GUILayout.Button("Generate New Terrain")) {
 			Undo.RecordObject(terrain, "Generate New Terrain");
-			terrain.GenerateTerrain();
+			terrain.GenerateSpline();
 			EditorUtility.SetDirty(terrain);
 		}
 

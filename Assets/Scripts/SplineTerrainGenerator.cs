@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-
 // TODO
 // - (DONE) Remove the dang quad from the backsize
 // - (DONE) Confine curve resolution to each block instead of the entire curve
@@ -10,6 +9,7 @@ using System.Collections.Generic;
 // - Add undo functionality to mesh building
 // - Allow for start/end points that aren't flat & extend down/near to mesh bottom
 
+[HelpURL("http://google.com")]
 public class SplineTerrainGenerator : MonoBehaviour {
 
 	[HeaderAttribute("Spline")]
@@ -67,12 +67,23 @@ public class SplineTerrainGenerator : MonoBehaviour {
 		modes.Add (BezierControlPointMode.Aligned);
 
 	}
+
+	public void ResetSpline () {
+		// Clear existing spline & control point modes
+		if (points.Count > 0) {
+			points.Clear ();
+		}
+
+		if (modes.Count > 0) {
+			modes.Clear ();
+		}
+
+	}
 		
-	public void GenerateTerrain () {
+	public void GenerateSpline () {
 
 		// Clear out our existing spline
-		points.Clear ();
-		modes.Clear ();
+		ResetSpline();
 
 		/* Step 1 - Add our initial terrain block
 		 */
@@ -118,6 +129,9 @@ public class SplineTerrainGenerator : MonoBehaviour {
 
 		}
 
+		// Display some basic terrain properties
+		CalculateTerrainProps ();
+
 		/* Step 3 - Build the mesh
 		 */
 		BuildMesh ();
@@ -134,9 +148,6 @@ public class SplineTerrainGenerator : MonoBehaviour {
 
 		// Ensure that the first control point mode of our new curve is consistent with our previous mode
 		EnforceMode(points.Count - 4);
-
-		// Now let's calculate our average slope
-		CalculateTerrainProps ();
 
 	}
 
@@ -295,7 +306,7 @@ public class SplineTerrainGenerator : MonoBehaviour {
 	public void BuildMesh() {
 
 		// Get mesh properties
-		GetMeshProps();
+		ResetMesh ();
 
 		// Build the mesh
 		GetSplineVertices ();
@@ -304,13 +315,12 @@ public class SplineTerrainGenerator : MonoBehaviour {
 		SetMesh();
 	}
 
-	private void GetMeshProps() {
-
+	private void ResetMesh() {
 		// Reset our mesh properties
 		if (mesh != null) {
 			mesh.Clear ();
 		}
-			
+
 		vertices.Clear ();
 		triangles.Clear ();
 		uvs.Clear ();
@@ -321,7 +331,6 @@ public class SplineTerrainGenerator : MonoBehaviour {
 		}
 
 		mesh = mf.mesh;
-
 	}
 		
 	// Obtain a list of vertices from our spline
