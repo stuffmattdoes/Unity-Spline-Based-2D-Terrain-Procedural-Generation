@@ -4,7 +4,6 @@ using UnityEditor;
 [CustomEditor(typeof(SplineTerrainGenerator))]
 public class SplineTerrainGeneratorInspector : Editor {
 
-
 	// Variables
 	private const float directionScale = 1f;
 	private SplineTerrainGenerator terrain;
@@ -32,17 +31,25 @@ public class SplineTerrainGeneratorInspector : Editor {
 		// Button to generate new terrain
 		if (GUILayout.Button("Generate New Terrain")) {
 			Undo.RecordObject(terrain, "Generate New Terrain");
-			EditorUtility.SetDirty(terrain);
 			terrain.GenerateTerrain();
+			EditorUtility.SetDirty(terrain);
 		}
 
 		// Button to generate new terrain
 		if (GUILayout.Button("Add Curve")) {
 			Undo.RecordObject(terrain, "Add Curve");
-			EditorUtility.SetDirty(terrain);
 			terrain.AddCurve(4);
+			terrain.terrainBlocks += 1;
 			terrain.BuildMesh ();
+			EditorUtility.SetDirty(terrain);
 		}
+
+		// Button to rebuild the mesh
+//		if (GUILayout.Button("Build Mesh")) {
+//			Undo.RecordObject(terrain, "Build Mesh");
+//			EditorUtility.SetDirty(terrain);
+//			terrain.BuildMesh ();
+//		}
 
 	}
 
@@ -81,8 +88,8 @@ public class SplineTerrainGeneratorInspector : Editor {
 		// Draw our spline control points
 		if (EditorGUI.EndChangeCheck()) {
 			Undo.RecordObject (terrain, "Move Point");
-			EditorUtility.SetDirty (terrain);
 			terrain.SetControlPoint (selectedIndex, point);
+			EditorUtility.SetDirty (terrain);
 		}
 
 		// Draw the mode per point
@@ -93,8 +100,8 @@ public class SplineTerrainGeneratorInspector : Editor {
 
 		if (EditorGUI.EndChangeCheck()) {
 			Undo.RecordObject(terrain, "Change Point Mode");
-			EditorUtility.SetDirty(terrain);
 			terrain.SetControlPointMode (selectedIndex, mode);
+			EditorUtility.SetDirty(terrain);
 		}
 	}
 
@@ -120,9 +127,9 @@ public class SplineTerrainGeneratorInspector : Editor {
 
 			if (EditorGUI.EndChangeCheck ()) {
 				Undo.RecordObject (terrain, "Move Point");
-				EditorUtility.SetDirty (terrain);
 				terrain.SetControlPoint(index, handleTransform.InverseTransformPoint (point));
 				terrain.BuildMesh ();
+				EditorUtility.SetDirty (terrain);
 			}
 		}
 		return point;
