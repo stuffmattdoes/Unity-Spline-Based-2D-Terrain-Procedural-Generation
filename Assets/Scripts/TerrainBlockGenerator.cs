@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 
 // TODO
-// Transform endpoint from spline terrain local to world coordinates
+// - (DONE) Transform endpoint from spline terrain local to world coordinates
+//	^ Endpoints get screwy when going from large piece to smaller piece
+//	^ Turns out, the endpoint values was incorrect in the prefabs. UGH!
 
 public class TerrainBlockGenerator : MonoBehaviour {
 
@@ -11,12 +13,12 @@ public class TerrainBlockGenerator : MonoBehaviour {
 
 	// Variables
 //	private Vector3 nextSpawnPoint;
-	private Vector3 lastStartPoint;
+//	private Vector3 lastStartPoint;
 	private Vector3 lastEndPoint;
 
 	// Use this for initialization
 	void Start () {
-		lastStartPoint = transform.position;
+//		lastStartPoint = transform.position;
 		lastEndPoint = transform.position;
 		PlaceBlocks ();
 	}
@@ -27,15 +29,13 @@ public class TerrainBlockGenerator : MonoBehaviour {
 
 		for (int i = 0; i < blocksToSpawn; i ++) {
 
-			newTerrainBlock = (GameObject)Instantiate(terrainBlocks[i], transform.position, Quaternion.identity);
-			splineProps = terrainBlocks[i].GetComponentInChildren<SplineTerrainGenerator> ();
+			newTerrainBlock = (GameObject)Instantiate(terrainBlocks[i], lastEndPoint, Quaternion.identity);
 			newTerrainBlock.transform.parent = gameObject.transform;
-			newTerrainBlock.transform.position = lastEndPoint;
+			splineProps = terrainBlocks[i].GetComponentInChildren<SplineTerrainGenerator> ();
 
-			lastStartPoint = newTerrainBlock.transform.position;
-			lastEndPoint = lastStartPoint + splineProps.endPoint;
+			lastEndPoint = newTerrainBlock.transform.position + splineProps.endPoint;
+			Debug.Log (splineProps.endPoint + ", " + lastEndPoint);
 
-			Debug.Log (lastEndPoint);
 
 		}
 
