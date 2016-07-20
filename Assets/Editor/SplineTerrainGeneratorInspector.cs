@@ -45,14 +45,12 @@ public class SplineTerrainGeneratorInspector : Editor {
 		}
 
 		// Button to rebuild the mesh
-//		if (GUILayout.Button("Build Mesh")) {
-//			Undo.RecordObject(terrain, "Build Mesh");
-//			EditorUtility.SetDirty(terrain);
-//			terrain.BuildMesh ();
-//		}
-
+		if (GUILayout.Button("Build Mesh")) {
+			Undo.RecordObject(terrain, "Build Mesh");
+			EditorUtility.SetDirty(terrain);
+			terrain.BuildMesh ();
+		}
 	}
-
 
 	private void OnSceneGUI () {
 		terrain = target as SplineTerrainGenerator;
@@ -77,8 +75,7 @@ public class SplineTerrainGeneratorInspector : Editor {
 			p0 = p3;
 		}
 	}
-
-
+		
 	// Used to draw a new inspector based on the selected spline control point
 	private void DrawSelectedPointInspector() {
 		GUILayout.Label ("Selected Point");
@@ -104,7 +101,6 @@ public class SplineTerrainGeneratorInspector : Editor {
 			EditorUtility.SetDirty(terrain);
 		}
 	}
-
 
 	// Show spline points
 	private Vector3 ShowPoint (int index) {

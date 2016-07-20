@@ -1,13 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+
 // TODO
 // - (DONE) Remove the dang quad from the backsize
 // - (DONE) Confine curve resolution to each block instead of the entire curve
 // - (DONE) Mesh creation is off when spline position !== (0, 0, 0)
 // - (DONE) Make each block a specific length so that texture tiles correctly
-// - Set mesh vertices at consistent intervals
+// - Figure out if using mesh vs. sharedMesh is a bad idea
 // - Add undo functionality to mesh building
 // - Allow for start/end points that aren't flat & extend down/near to mesh bottom
+// - (nope) Set mesh vertices at consistent intervals
 
 [HelpURL("http://google.com")]
 public class SplineTerrainGenerator : MonoBehaviour {
@@ -32,6 +34,7 @@ public class SplineTerrainGenerator : MonoBehaviour {
 	public int meshHeight = 25;
 	public float terrainSecant;
 	public float terrainLength;
+	public Vector3 endPoint;
 
 	[SerializeField]
 	[HideInInspector]
@@ -52,9 +55,19 @@ public class SplineTerrainGenerator : MonoBehaviour {
 		}
 	}
 
-	// Unity-specific function called when object is reset/created
-	public void Reset () {
+	// Unity-specific functionc alled when objected is enabled
+	public void OnEnable() {
+		BuildMesh ();
+	}
 
+	public void Start() {
+		CalculateTerrainProps ();
+	}
+
+	// Unity-specific function called when object is reset/created
+//	public void Reset () {
+
+		/*
 		// Create our first terrain block
 		points.Add (new Vector3 (0f, 0f, 0f));
 		points.Add (new Vector3 (1f, 0f, 0f));
@@ -65,8 +78,10 @@ public class SplineTerrainGenerator : MonoBehaviour {
 		modes = new List<BezierControlPointMode> ();
 		modes.Add (BezierControlPointMode.Aligned);
 		modes.Add (BezierControlPointMode.Aligned);
+		*/
 
-	}
+//		BuildMesh ();
+//	}
 
 	public void ResetSpline () {
 		// Clear existing spline & control point modes
@@ -154,6 +169,7 @@ public class SplineTerrainGenerator : MonoBehaviour {
 	private void CalculateTerrainProps () {
 		terrainSecant = (points[points.Count - 1].y - points[0].y ) / (points[points.Count - 1].x - points[0].x);
 		terrainLength = points [points.Count - 1].x - points [0].x;
+		endPoint = new Vector3(points[points.Count - 1].x, points[points.Count - 1].y, points[points.Count - 1].z);
 	}
 
 	// Generate a random 
@@ -283,7 +299,7 @@ public class SplineTerrainGenerator : MonoBehaviour {
 		points[enforcedIndex] = middle + enforcedTangent;
 	}
 
-	public static Vector3 GetBezierPoint (Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
+	public Vector3 GetBezierPoint (Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
 		t = Mathf.Clamp01(t);
 		float oneMinusT = 1f - t;
 		return
@@ -294,7 +310,7 @@ public class SplineTerrainGenerator : MonoBehaviour {
 	}
 		
 	// Useful for drawing tangents on the curve to show directionality/velocity
-	public static Vector3 GetBezierFirstDerivative (Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
+	public Vector3 GetBezierFirstDerivative (Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float t) {
 		t = Mathf.Clamp01(t);
 		float oneMinusT = 1f - t;
 		return
@@ -330,7 +346,7 @@ public class SplineTerrainGenerator : MonoBehaviour {
 			mf = GetComponent<MeshFilter> ();
 		}
 
-		mesh = mf.mesh;
+		mesh = mf.sharedMesh = new Mesh();
 	}
 		
 	// Obtain a list of vertices from our spline
