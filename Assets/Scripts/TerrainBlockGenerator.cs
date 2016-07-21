@@ -12,12 +12,9 @@ using System.Collections.Generic;
 
 public class TerrainBlockGenerator : MonoBehaviour {
 
+	// Variables
 	public int blocksPerSetMin = 3;
 	public int blocksPerSetMax = 10;
-	public List<GameObject> terrainBlocks;
-
-	// Variables
-	private Vector3 nextSpawnPoint;
 
 	[System.Serializable]
 	public class TerrainBlockSet {
@@ -32,6 +29,10 @@ public class TerrainBlockGenerator : MonoBehaviour {
 
 	public List<TerrainBlockSet> terrainBlockSet = new List<TerrainBlockSet>();
 
+	private Vector3 nextSpawnPoint;
+	private int probSum;
+	private int probCount;
+
 	// Use this for initialization
 	void Start () {
 		ResetBlocks ();
@@ -45,19 +46,53 @@ public class TerrainBlockGenerator : MonoBehaviour {
 	private void PlaceBlocks() {
 		GameObject newTerrainBlock;
 		SplineTerrainGenerator splineProps;
+		int blockIndex;
+		int blocksToSet = Random.Range (blocksPerSetMin, blocksPerSetMax);
 
-		for (int i = 0; i < blocksPerSetMin; i ++) {
+		for (int i = 0; i < blocksToSet; i ++) {
 
-			newTerrainBlock = (GameObject)Instantiate(terrainBlocks[i], nextSpawnPoint, Quaternion.identity);
+			// Randomly select a block
+			blockIndex = DetermineProbability();
+
+			// Spawn it
+			newTerrainBlock = (GameObject)Instantiate(terrainBlockSet[blockIndex].terrainBlock, nextSpawnPoint, Quaternion.identity);
 			newTerrainBlock.transform.parent = gameObject.transform;
-			splineProps = terrainBlocks[i].GetComponentInChildren<SplineTerrainGenerator> ();
-
+			splineProps = newTerrainBlock.GetComponentInChildren<SplineTerrainGenerator> ();
 			nextSpawnPoint = newTerrainBlock.transform.position + splineProps.endPoint;
-//			Debug.Log (splineProps.endPoint + ", " + lastEndPoint);
-
 
 		}
 
+	}
+
+	// Calculate block spawning probability
+	private int DetermineProbability () {
+
+		// Reset our probability count
+		probSum = 0;
+		probCount = 0;
+
+		// 1. Calculate our total probability sum
+		for (int i = 0; i < terrainBlockSet.Count; i++) {
+			probSum += terrainBlockSet[i].probability;
+		}
+
+		// 2. Randomly select a value within the range of total probability
+		// +1 because Random.Range with integers is not maximally inclusive
+		int randomBlock = Random.Range (0, probSum);
+
+		// 3. Determine a random block index to return
+		for (int i = 0; i < terrainBlockSet.Count; i++) {
+
+			probCount += terrainBlockSet [i].probability;
+//			Debug.Log (probCount);
+
+			if (randomBlock < probCount) {
+				return i;
+			}
+
+		}
+
+		return 0;
 	}
 
 }
