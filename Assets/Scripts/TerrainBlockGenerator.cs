@@ -17,7 +17,7 @@ public class TerrainBlockGenerator : MonoBehaviour {
 	public int blocksPerSetMax = 10;
 
 	[System.Serializable]
-	public class TerrainBlockSet {
+	public struct TerrainBlockSet {
 
 		public GameObject terrainBlock;
 
