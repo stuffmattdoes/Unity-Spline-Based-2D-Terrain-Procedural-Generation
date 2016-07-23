@@ -36,27 +36,22 @@ public class SplineTerrainGeneratorInspector : Editor {
 		}
 
 		// Button to generate new terrain
-		if (GUILayout.Button("Add Curve")) {
-			Undo.RecordObject(terrain, "Add Curve");
-			terrain.AddCurve(4);
+		if (GUILayout.Button ("Add Curve")) {
+			Undo.RecordObject (terrain, "Add Curve");
+			terrain.AddCurve (4);
 			terrain.terrainBlocks += 1;
 			terrain.BuildMesh ();
-			EditorUtility.SetDirty(terrain);
+			EditorUtility.SetDirty (terrain);
 		}
 
 		// Button to rebuild the mesh
-		if (GUILayout.Button("Build Mesh")) {
-			Undo.RecordObject(terrain, "Build Mesh");
-			EditorUtility.SetDirty(terrain);
+		if (GUILayout.Button("Build Mesh & Collider")) {
+			Undo.RecordObject(terrain, "Build Mesh & Collider");
 			terrain.BuildMesh ();
+			terrain.GenerateCollider ();
+			EditorUtility.SetDirty(terrain);
 		}
 
-		// Button to rebuild the coollider
-		if (GUILayout.Button("Generate Collider")) {
-			Undo.RecordObject(terrain, "Generate Collider");
-			EditorUtility.SetDirty(terrain);
-			terrain.GenerateCollider ();
-		}
 	}
 
 	private void OnSceneGUI () {
@@ -132,6 +127,7 @@ public class SplineTerrainGeneratorInspector : Editor {
 				Undo.RecordObject (terrain, "Move Point");
 				terrain.SetControlPoint(index, handleTransform.InverseTransformPoint (point));
 				terrain.BuildMesh ();
+				terrain.GenerateCollider ();
 				EditorUtility.SetDirty (terrain);
 			}
 		}

@@ -6,10 +6,11 @@ using System.Collections.Generic;
 // - (DONE) Confine curve resolution to each block instead of the entire curve
 // - (DONE) Mesh creation is off when spline position !== (0, 0, 0)
 // - (DONE) Make each block a specific length so that texture tiles correctly
-// - Add colliders
+// - (DONE) Add colliders
+//		^ Auto update on spline edit
+// - Allow for start/end points that aren't flat & extend down/near to mesh bottom
 // - Figure out if using mesh vs. sharedMesh is a bad idea
 // - Add undo functionality to mesh building
-// - Allow for start/end points that aren't flat & extend down/near to mesh bottom
 // - (nope) Set mesh vertices at consistent intervals
 
 [HelpURL("http://google.com")]
