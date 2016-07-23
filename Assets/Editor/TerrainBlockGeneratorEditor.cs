@@ -73,12 +73,13 @@ public class TerrainBlockGeneratorEditor : Editor {
 		TerrainBlockGenerator myTarget = (TerrainBlockGenerator)target;
 
 		// Regular inspector variables
-		myTarget.blocksPerSetMin = EditorGUILayout.IntField("Blocks Per Set (Min)", myTarget.blocksPerSetMin);
-		myTarget.blocksPerSetMax = EditorGUILayout.IntField("Blocks Per Set (Max)", myTarget.blocksPerSetMax);
+//		myTarget.blocksPerSetMin = EditorGUILayout.IntField("Blocks Per Set (Min)", myTarget.blocksPerSetMin);
+//		myTarget.blocksPerSetMax = EditorGUILayout.IntField("Blocks Per Set (Max)", myTarget.blocksPerSetMax);
 
 		// Draw our reorderable list & allow for undoing actions to it
 		serializedObject.Update();
-		reList.DoLayoutList ();
+		DrawDefaultInspector ();
+//		reList.DoLayoutList ();
 		serializedObject.ApplyModifiedProperties ();
 
 	}

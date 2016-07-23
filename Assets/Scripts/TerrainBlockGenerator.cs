@@ -5,10 +5,11 @@ using System.Collections.Generic;
 // - (DONE) Transform endpoint from spline terrain local to world coordinates
 //		^ Endpoints get screwy when going from large piece to smaller piece
 //		^ Turns out, the endpoint values was incorrect in the prefabs. UGH!
-// - Spawn blocks in random order
+// - (DONE) Spawn blocks in random order
 //		^ If blocks to spawn > blocks available, recycle a few
-// - Implement bione class/struct to hold blocks & spawning properties for each block
+// - (DONE) Implement bione class/struct to hold blocks & spawning properties for each block
 //		^ Should have sliders to influence randomized probability & spawning, like terrain spline generator
+// - Biome randomization
 
 public class TerrainBlockGenerator : MonoBehaviour {
 
@@ -16,6 +17,7 @@ public class TerrainBlockGenerator : MonoBehaviour {
 	public int blocksPerSetMin = 3;
 	public int blocksPerSetMax = 10;
 
+	// Create a struct to hold our terrain block data groups
 	[System.Serializable]
 	public struct TerrainBlockSet {
 
@@ -26,6 +28,14 @@ public class TerrainBlockGenerator : MonoBehaviour {
 		public int probability;
 
 	}
+
+	[System.Serializable]
+	public struct Biomes {
+		public string biomeName;
+		public List<TerrainBlockSet> terrainPrefabs;
+	}
+
+	public List<Biomes> terrainBiomes = new List<Biomes>();
 
 	public List<TerrainBlockSet> terrainBlockSet = new List<TerrainBlockSet>();
 
@@ -41,6 +51,10 @@ public class TerrainBlockGenerator : MonoBehaviour {
 
 	private void ResetBlocks() {
 		nextSpawnPoint = transform.position;
+	}
+
+	private void RandomBiome() {
+
 	}
 	
 	private void PlaceBlocks() {
@@ -84,7 +98,6 @@ public class TerrainBlockGenerator : MonoBehaviour {
 		for (int i = 0; i < terrainBlockSet.Count; i++) {
 
 			probCount += terrainBlockSet [i].probability;
-//			Debug.Log (probCount);
 
 			if (randomBlock < probCount) {
 				return i;

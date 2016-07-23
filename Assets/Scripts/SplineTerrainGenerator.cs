@@ -392,6 +392,7 @@ public class SplineTerrainGenerator : MonoBehaviour {
 		mesh.vertices = vertices.ToArray();
 		mesh.triangles = triangles.ToArray();
 		mesh.uv = uvs.ToArray ();
+		mesh.RecalculateNormals();
 	}
 
 }
