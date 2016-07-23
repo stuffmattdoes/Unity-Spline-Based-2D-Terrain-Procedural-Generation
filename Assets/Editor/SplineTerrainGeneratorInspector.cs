@@ -50,6 +50,13 @@ public class SplineTerrainGeneratorInspector : Editor {
 			EditorUtility.SetDirty(terrain);
 			terrain.BuildMesh ();
 		}
+
+		// Button to rebuild the coollider
+		if (GUILayout.Button("Generate Collider")) {
+			Undo.RecordObject(terrain, "Generate Collider");
+			EditorUtility.SetDirty(terrain);
+			terrain.GenerateCollider ();
+		}
 	}
 
 	private void OnSceneGUI () {

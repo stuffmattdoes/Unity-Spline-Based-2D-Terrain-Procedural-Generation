@@ -6,6 +6,7 @@ using System.Collections.Generic;
 // - (DONE) Confine curve resolution to each block instead of the entire curve
 // - (DONE) Mesh creation is off when spline position !== (0, 0, 0)
 // - (DONE) Make each block a specific length so that texture tiles correctly
+// - Add colliders
 // - Figure out if using mesh vs. sharedMesh is a bad idea
 // - Add undo functionality to mesh building
 // - Allow for start/end points that aren't flat & extend down/near to mesh bottom
@@ -48,6 +49,7 @@ public class SplineTerrainGenerator : MonoBehaviour {
 	private List<int> triangles = new List<int>();
 	private List<Vector2> uvs = new List<Vector2> ();
 	private MeshFilter mf;
+	private EdgeCollider2D edgeCol;
 
 	public int ControlPointCount {
 		get {
@@ -60,28 +62,33 @@ public class SplineTerrainGenerator : MonoBehaviour {
 		BuildMesh ();
 	}
 
-	public void Start() {
-		CalculateTerrainProps ();
-	}
-
-	// Unity-specific function called when object is reset/created
-//	public void Reset () {
-
-		/*
-		// Create our first terrain block
-		points.Add (new Vector3 (0f, 0f, 0f));
-		points.Add (new Vector3 (1f, 0f, 0f));
-		points.Add(RandomPoint(points[points.Count - 1]));
-		points.Add(RandomPoint(points[points.Count - 1]));
-
-		// Add the bezier control point modes for our first block
-		modes = new List<BezierControlPointMode> ();
-		modes.Add (BezierControlPointMode.Aligned);
-		modes.Add (BezierControlPointMode.Aligned);
-		*/
-
-//		BuildMesh ();
+//	public void Start() {
+//		CalculateTerrainProps ();
 //	}
+		
+
+	// -----------------
+	// Spline Generation
+	// -----------------
+
+	public void BuildSpline() {
+
+		// Step 1 - Reset existing spline data
+		ResetSpline ();
+
+		// Step 2 - Generate new spline data
+		GenerateSpline ();
+
+		// Step 3 -Display some basic terrain properties
+		CalculateTerrainProps ();
+
+		// Step 4 - Build the mesh
+		BuildMesh ();
+
+		// Step 5 - Generate a collider along each terrain block
+		GenerateCollider ();
+
+	}
 
 	public void ResetSpline () {
 		// Clear existing spline & control point modes
@@ -98,7 +105,7 @@ public class SplineTerrainGenerator : MonoBehaviour {
 	public void GenerateSpline () {
 
 		// Clear out our existing spline
-		ResetSpline();
+//		ResetSpline();
 
 		/* Step 1 - Add our initial terrain block
 		 */
@@ -144,12 +151,14 @@ public class SplineTerrainGenerator : MonoBehaviour {
 
 		}
 
-		// Display some basic terrain properties
-		CalculateTerrainProps ();
-
-		/* Step 3 - Build the mesh
-		 */
-		BuildMesh ();
+//		// Display some basic terrain properties
+//		CalculateTerrainProps ();
+//
+//		// Step 3 - Build the mesh
+//		BuildMesh ();
+//
+//		// Step 4 - Generate a collider along each terrain block
+//		GenerateCollider ();
 
 	}
 		
@@ -188,6 +197,8 @@ public class SplineTerrainGenerator : MonoBehaviour {
 	// How many curves we got?
 	private int CurveCount {
 		get {
+
+			// Divide by 3 because 3 points = 1 curve
 			return (points.Count - 1) / 3;
 		}
 	}
@@ -318,6 +329,11 @@ public class SplineTerrainGenerator : MonoBehaviour {
 			6f * oneMinusT * t * (p2 - p1) +
 			3f * t * t * (p3 - p2);
 	}
+
+
+	// ---------------
+	// Mesh Generation 
+	// ---------------
 		
 	public void BuildMesh() {
 
@@ -393,6 +409,27 @@ public class SplineTerrainGenerator : MonoBehaviour {
 		mesh.triangles = triangles.ToArray();
 		mesh.uv = uvs.ToArray ();
 		mesh.RecalculateNormals();
+	}
+
+
+	// -------------------
+	// Collider Generation
+	// -------------------
+
+	public void GenerateCollider() {
+		Debug.Log ("Generate collider");
+		edgeCol = GetComponent<EdgeCollider2D> ();
+		List<Vector2> colliderPoints = new List<Vector2> ();
+
+		for (int i = 1; i < vertices.Count; i += 2) {
+			colliderPoints.Add (new Vector2 (
+				vertices[i].x,
+				vertices[i].y
+			));
+		}
+
+		edgeCol.points = colliderPoints.ToArray();
+
 	}
 
 }

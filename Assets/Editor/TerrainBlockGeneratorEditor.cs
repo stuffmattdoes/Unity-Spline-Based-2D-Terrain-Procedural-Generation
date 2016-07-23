@@ -70,7 +70,7 @@ public class TerrainBlockGeneratorEditor : Editor {
 	public override void OnInspectorGUI() {
 
 		// Establish reference to default script
-		TerrainBlockGenerator myTarget = (TerrainBlockGenerator)target;
+//		TerrainBlockGenerator myTarget = (TerrainBlockGenerator)target;
 
 		// Regular inspector variables
 //		myTarget.blocksPerSetMin = EditorGUILayout.IntField("Blocks Per Set (Min)", myTarget.blocksPerSetMin);
