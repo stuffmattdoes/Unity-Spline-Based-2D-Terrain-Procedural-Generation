@@ -2,6 +2,7 @@
 using UnityEditor;
 
 [CustomEditor(typeof(SplineTerrainGenerator))]
+[CanEditMultipleObjects]
 public class SplineTerrainGeneratorInspector : Editor {
 
 	// Variables

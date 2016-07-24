@@ -8,7 +8,11 @@ using System.Collections.Generic;
 // - (DONE) Make each block a specific length so that texture tiles correctly
 // - (DONE) Add colliders
 //		^ Auto update on spline edit
-// - Allow for start/end points that aren't flat & extend down/near to mesh bottom
+// - (DONE) Resolve sorting order
+// - Start/end points that aren't flat & extend down/near to mesh bottom
+
+// TODO Extra
+// - Resolve Z-fighting on camera rotate
 // - Figure out if using mesh vs. sharedMesh is a bad idea
 // - Add undo functionality to mesh building
 // - (nope) Set mesh vertices at consistent intervals
