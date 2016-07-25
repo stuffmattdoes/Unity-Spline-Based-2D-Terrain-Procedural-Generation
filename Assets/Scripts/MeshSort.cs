@@ -4,7 +4,7 @@ using System.Collections;
 public class MeshSort : MonoBehaviour {
 
 	// Variables
-	[HideInInspector] public string sortingLayerName;
+	[HideInInspector] public string sortingLayerName = "Default";
 	[HideInInspector] public int sortingLayerID = 0;
 	[HideInInspector] public int sortingOrder = 0;
 

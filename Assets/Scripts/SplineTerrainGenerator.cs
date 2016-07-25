@@ -32,8 +32,8 @@ public class SplineTerrainGenerator : MonoBehaviour {
 	public int terrainBlocks = 4;
 	[Range(1, 10)] public int minDeltaX = 4;
 	[Range(1, 10)] public int maxDeltaX = 6;
-	[Range(1, 10)] public int minDeltaY = 2;
-	[Range(1, 10)] public int maxDeltaY = 8;
+	[Range(1, 10)] public int minDeltaY = 6;
+	[Range(1, 10)] public int maxDeltaY = 6;
 
 	public enum BezierControlPointMode {
 		Free,
@@ -56,7 +56,7 @@ public class SplineTerrainGenerator : MonoBehaviour {
 
 	[SerializeField]
 	[HideInInspector]
-	private List<BezierControlPointMode> modes;
+	private List<BezierControlPointMode> modes = new List<BezierControlPointMode> ();
 	private Mesh mesh;
 	private List<Vector3> vertices = new List<Vector3>();
 	private List<int> triangles = new List<int>();
@@ -87,16 +87,7 @@ public class SplineTerrainGenerator : MonoBehaviour {
 
 	// On first object creation or reset
 	public void Reset () {
-//		points = new Vector3[] {
-//			new Vector3(1f, 0f, 0f),
-//			new Vector3(2f, 0f, 0f),
-//			new Vector3(3f, 0f, 0f),
-//			new Vector3(4f, 0f, 0f)
-//		};
-//		modes = new BezierControlPointMode[] {
-//			BezierControlPointMode.Aligned,
-//			BezierControlPointMode.Aligned
-//		};
+		BuildSpline();
 	}
 
 	// -----------------
@@ -148,7 +139,6 @@ public class SplineTerrainGenerator : MonoBehaviour {
 		points.Add(RandomPoint(points[points.Count - 1]));
 
 		// Add our first terrain block mode
-		modes = new List<BezierControlPointMode> ();
 		modes.Add (defaultBezierMode);
 		modes.Add (defaultBezierMode);
 
@@ -380,6 +370,7 @@ public class SplineTerrainGenerator : MonoBehaviour {
 		}
 
 		mesh = mf.sharedMesh = new Mesh();
+		mesh.name = "Terrain Mesh";
 	}
 		
 	// Obtain a list of vertices from our spline
@@ -434,7 +425,6 @@ public class SplineTerrainGenerator : MonoBehaviour {
 	// -------------------
 
 	public void GenerateCollider() {
-//		Debug.Log ("Generate collider");
 		edgeCol = GetComponent<EdgeCollider2D> ();
 		List<Vector2> colliderPoints = new List<Vector2> ();
 
