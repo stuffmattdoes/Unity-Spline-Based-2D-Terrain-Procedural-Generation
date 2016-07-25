@@ -17,7 +17,15 @@ using System.Collections.Generic;
 // - Add undo functionality to mesh building
 // - (nope) Set mesh vertices at consistent intervals
 
-[HelpURL("http://google.com")]
+
+// Documentation URL (click the book icon in the inspector component)
+[HelpURL("https://bitbucket.org/MatthewMorrison/2d-procedural-terrain")]
+
+// Add our component dependencies
+[RequireComponent (typeof (MeshFilter))]
+[RequireComponent (typeof (MeshRenderer))]
+[RequireComponent (typeof (EdgeCollider2D))]
+[RequireComponent (typeof (Material))]
 public class SplineTerrainGenerator : MonoBehaviour {
 
 	[HeaderAttribute("Spline")]
@@ -62,15 +70,34 @@ public class SplineTerrainGenerator : MonoBehaviour {
 		}
 	}
 
-	// Unity-specific functionc alled when objected is enabled
+
+	// --------------
+	// Unity-specific
+	// --------------
+
+	// On object enable
 	public void OnEnable() {
 		BuildMesh ();
 	}
 
-//	public void Start() {
-//		CalculateTerrainProps ();
-//	}
-		
+	// On scene start
+	public void Start() {
+		CalculateTerrainProps ();
+	}
+
+	// On first object creation or reset
+	public void Reset () {
+//		points = new Vector3[] {
+//			new Vector3(1f, 0f, 0f),
+//			new Vector3(2f, 0f, 0f),
+//			new Vector3(3f, 0f, 0f),
+//			new Vector3(4f, 0f, 0f)
+//		};
+//		modes = new BezierControlPointMode[] {
+//			BezierControlPointMode.Aligned,
+//			BezierControlPointMode.Aligned
+//		};
+	}
 
 	// -----------------
 	// Spline Generation
@@ -109,12 +136,7 @@ public class SplineTerrainGenerator : MonoBehaviour {
 		
 	public void GenerateSpline () {
 
-		// Clear out our existing spline
-//		ResetSpline();
-
-		/* Step 1 - Add our initial terrain block
-		 */
-
+		// Add our starting terrain block
 		points.Add (new Vector3 (0f, 0f, 0f));
 		points.Add (new Vector3 (
 			Random.Range ((float)minDeltaX, (float)maxDeltaX),
@@ -155,15 +177,6 @@ public class SplineTerrainGenerator : MonoBehaviour {
 			}
 
 		}
-
-//		// Display some basic terrain properties
-//		CalculateTerrainProps ();
-//
-//		// Step 3 - Build the mesh
-//		BuildMesh ();
-//
-//		// Step 4 - Generate a collider along each terrain block
-//		GenerateCollider ();
 
 	}
 		
@@ -208,8 +221,7 @@ public class SplineTerrainGenerator : MonoBehaviour {
 		}
 	}
 		
-	/* Obtain a point in our list of points along our spline
-	 */
+	// Obtain a point in our list of points along our spline
 	private Vector3 GetPoint (float t) {
 		int i;
 
@@ -422,7 +434,7 @@ public class SplineTerrainGenerator : MonoBehaviour {
 	// -------------------
 
 	public void GenerateCollider() {
-		Debug.Log ("Generate collider");
+//		Debug.Log ("Generate collider");
 		edgeCol = GetComponent<EdgeCollider2D> ();
 		List<Vector2> colliderPoints = new List<Vector2> ();
 
